@@ -10,6 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         jit: [1205, 0]
         os: [ubuntu-20.04, windows-2019]
