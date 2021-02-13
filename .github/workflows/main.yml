@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        jit: [1205, 0]
+        os: [ubuntu-20.04, windows-2019]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.9.0
+        with:
+          php-version: 8.0.2
+          ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.jit }}
+          tools: composer
+
+      - name: Install Composer dependencoes
+        run: composer install --no-interaction --no-dev
+      
+      - name: Run test script
+        run: php reproduce.php
