@@ -23,6 +23,7 @@ jobs:
           php-version: 8.0.2
           ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.jit }}
           tools: composer
+          extensions: :xdebug
 
       - name: Install Composer dependencoes
         run: composer install --no-interaction --no-dev
