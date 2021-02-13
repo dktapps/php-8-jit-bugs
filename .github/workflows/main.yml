@@ -26,7 +26,7 @@ jobs:
           extensions: :xdebug
 
       - name: Install Composer dependencoes
-        run: composer install --no-interaction --no-dev
+        run: composer install --no-interaction
       
       - name: Run test script
         run: php reproduce.php
