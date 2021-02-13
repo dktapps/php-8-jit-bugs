@@ -1,13 +1,25 @@
 <?php
 
-include __DIR__.'/vendor/autoload.php';
+final class Message
+{
+    public $qr = false;
 
-use Discord\Discord;
+    public $opcode = 0;
 
-$discord = new Discord(['token' => 'LongTokenHere,Not needed to reproduce PHP8 Problem.']);
+    public $aa = false;
+}
 
-$discord->on('ready', function (Discord $discord) {
-	var_dump("PROBLEM NOT REPRODUCED.");
-});
+echo "Starting...\n";
 
-$discord->run();
+function headerToBinary(Message $message)
+{
+	$flags = 0;
+	$flags = ($flags << 1) | ($message->qr ? 1 : 0);
+	$flags = ($flags << 4) | $message->opcode;
+	var_dump($flags);
+	$flags = ($flags << 1) | ($message->aa ? 1 : 0);
+}
+
+headerToBinary(new Message());
+
+echo "PROBLEM NOT REPRODUCED !\n";
