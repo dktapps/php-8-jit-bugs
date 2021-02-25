@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jit: [1205, 0]
+        jit: [1205, 1254, 0]
         os: [ubuntu-20.04, windows-2019]
 
     steps:
@@ -23,11 +23,19 @@ jobs:
         with:
           php-version: 8.0.2
           ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.jit }}, opcache.jit_buffer_size=8M
-          tools: composer
           extensions: :xdebug
 
-      - name: Install Composer dependencoes
-        run: composer install --no-interaction --ignore-platform-reqs
-      
-      - name: Run test script
-        run: php reproduce.php
+      - name: Run test scripts
+        run: |
+                STATUS=0
+                for i in $(ls samples); do
+                        php samples/$i
+                        EXITCODE=$?
+                        if [[ $EXITCODE -ne 0 ]]; then
+                                echo "FAILED TEST $i with code $EXITCODE"
+                                STATUS=1
+                        else
+                                echo "PASSED TEST $i"
+                        fi
+                done
+                exit $STATUS
