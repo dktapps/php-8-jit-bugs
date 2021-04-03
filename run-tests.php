@@ -6,12 +6,16 @@ foreach(scandir(__DIR__ . '/samples/') as $file){
 		continue;
 	}
 	$ret = -1;
+	echo "Running test sample $file\n";
 	passthru(PHP_BINARY . " " . __DIR__ . "/samples/$file", $ret);
 	if($ret !== 0){
-		echo "FAILED: $file ($ret)\n";
+		fwrite(STDERR, "FAILED: $file ($ret)\n");
 		$exit = 1;
 	}else{
 		echo "PASSED: $file\n";
 	}
+}
+if($exit !== 0){
+	fwrite(STDERR, "Some tests failed\n");
 }
 exit($exit);
