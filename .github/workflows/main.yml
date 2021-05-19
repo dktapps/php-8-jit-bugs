@@ -48,6 +48,9 @@ jobs:
           echo "opcache.jit=${{ matrix.jit }}" >> $GITHUB_WORKSPACE/php/etc/conf.d/opcache.ini
           echo "opcache.jit_buffer_size=8M" >> $GITHUB_WORKSPACE/php/etc/conf.d/opcache.ini
 
+      - name: Disable Xdebug
+        run: rm "$GITHUB_WORKSPACE/php/etc/conf.d/xdebug.ini" || true
+
       - name: Prefix PHP to PATH
         run: echo $GITHUB_WORKSPACE/php/bin >> $GITHUB_PATH
 
