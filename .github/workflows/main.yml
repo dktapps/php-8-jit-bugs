@@ -14,7 +14,7 @@ jobs:
       matrix:
         jit: [1205, 1254, 0]
         zts: [on, off]
-        debug: [on, off]
+        debug: [enable, disable]
         php: [8.0.6]
 
     name: PHP ${{ matrix.php }}, ZTS ${{ matrix.zts }}, debug ${{ matrix.debug }}, JIT ${{ matrix.jit }}
@@ -36,7 +36,7 @@ jobs:
           ./install-dependencies.sh
           export CFLAGS="$CFLAGS -march=x86-64"
           export CXXFLAGS="$CXXFLAGS -march=x86-64"
-          PHP_BUILD_ZTS_ENABLE=${{ matrix.zts }} PHP_BUILD_CONFIGURE_OPTS="--enable-debug=${{ matrix.debug }}" ./bin/php-build "${{ matrix.php }}" "$GITHUB_WORKSPACE/php"
+          PHP_BUILD_ZTS_ENABLE=${{ matrix.zts }} PHP_BUILD_CONFIGURE_OPTS="--${{ matrix.debug }}-debug" ./bin/php-build "${{ matrix.php }}" "$GITHUB_WORKSPACE/php"
 
       - name: Install cached PHP's dependencies
         if: steps.php-build-cache.outputs.cache-hit == 'true'
@@ -53,6 +53,9 @@ jobs:
 
       - name: Prefix PHP to PATH
         run: echo $GITHUB_WORKSPACE/php/bin >> $GITHUB_PATH
+
+      - name: Dump phpinfo
+        run: php -i
 
       - name: Run test scripts
         run: php run-tests.php
