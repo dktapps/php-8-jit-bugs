@@ -7,23 +7,49 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
       matrix:
         jit: [1205, 1254, 0]
-        os: [ubuntu-20.04, windows-2019]
+        zts: [on, off]
+        debug: [on, off]
+        php: [8.0.6]
 
+    name: PHP ${{ matrix.php }}, ZTS ${{ matrix.zts }}, debug ${{ matrix.debug }}, JIT ${{ matrix.jit }}
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@2.9.0
+      - name: Restore PHP build cache
+        id: php-build-cache
+        uses: actions/cache@v2
         with:
-          php-version: 8.0.6
-          ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.jit }}, opcache.jit_buffer_size=8M
-          extensions: :xdebug
+          path: ${{ github.workspace }}/php
+          key: php-build-${{ matrix.php }}-zts-${{ matrix.zts }}-debug-${{ matrix.debug }}
+
+      - name: Compile PHP
+        if: steps.php-build-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/php-build/php-build.git
+          cd php-build
+          ./install-dependencies.sh
+          export CFLAGS="$CFLAGS -march=x86-64"
+          export CXXFLAGS="$CXXFLAGS -march=x86-64"
+          PHP_BUILD_ZTS_ENABLE=${{ matrix.zts }} PHP_BUILD_CONFIGURE_OPTS="--enable-debug=${{ matrix.debug }}" ./bin/php-build "${{ matrix.php }}" "$GITHUB_WORKSPACE/php"
+
+      - name: Install cached PHP's dependencies
+        if: steps.php-build-cache.outputs.cache-hit == 'true'
+        run: sudo apt update && sudo apt install libzip5
+
+      - name: Update opcache php.ini settings
+        run: |
+          echo "opcache.enable_cli=1" > $GITHUB_WORKSPACE/php/etc/conf.d/opcache.ini
+          echo "opcache.jit=${{ matrix.jit }}" >> $GITHUB_WORKSPACE/php/etc/conf.d/opcache.ini
+          echo "opcache.jit_buffer_size=8M" >> $GITHUB_WORKSPACE/php/etc/conf.d/opcache.ini
+
+      - name: Prefix PHP to PATH
+        run: echo $GITHUB_WORKSPACE/php/bin >> $GITHUB_PATH
 
       - name: Run test scripts
         run: php run-tests.php
