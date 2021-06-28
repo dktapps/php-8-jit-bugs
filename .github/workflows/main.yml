@@ -58,8 +58,8 @@ jobs:
         run: php -i
 
       - name: Run test scripts
-        run: php run-tests.php
-        
+        run: php -d opcache.jit=0 run-tests.php
+
   build-windows:
     runs-on: windows-2019
 
@@ -81,4 +81,4 @@ jobs:
           extensions: :xdebug
 
       - name: Run test scripts
-        run: php run-tests.php
+        run: php -d opcache.jit=0 run-tests.php
