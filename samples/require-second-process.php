@@ -22,6 +22,6 @@
 declare(strict_types=1);
 
 system(PHP_BINARY . " -v");
-echo "Including script 'Test.php'";
+echo "Including script 'Test.php'\n";
 require dirname(__DIR__) . '/helpers/Test.php';
 echo "Done!\n";
