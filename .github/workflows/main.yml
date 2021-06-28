@@ -17,7 +17,7 @@ jobs:
         debug: [enable, disable]
         php: [8.0.6]
 
-    name: PHP ${{ matrix.php }}, ZTS ${{ matrix.zts }}, debug ${{ matrix.debug }}, JIT ${{ matrix.jit }}
+    name: Ubuntu (${{ matrix.php }}, ZTS ${{ matrix.zts }}, debug ${{ matrix.debug }}, JIT ${{ matrix.jit }})
     steps:
       - uses: actions/checkout@v2
 
@@ -56,6 +56,29 @@ jobs:
 
       - name: Dump phpinfo
         run: php -i
+
+      - name: Run test scripts
+        run: php run-tests.php
+        
+  build-windows:
+    runs-on: windows-2019
+
+    strategy:
+      fail-fast: false
+      matrix:
+        jit: [1205, 1254, 0]
+        php: [8.0.6]
+
+    name: Windows (${{ matrix.php }}, JIT ${{ matrix.jit }})
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.9.0
+        with:
+          php-version: ${{ matrix.php }}
+          ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.jit }}, opcache.jit_buffer_size=8M
+          extensions: :xdebug
 
       - name: Run test scripts
         run: php run-tests.php
