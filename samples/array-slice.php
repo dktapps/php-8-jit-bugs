@@ -31,9 +31,5 @@ class WritableBookBase{
 	}
 }
 
-var_dump(get_loaded_extensions());
-var_dump(php_ini_loaded_file());
-var_dump(opcache_get_status()["jit"]);
 $book = new WritableBookBase;
-$book2 = clone $book;
-$book2->insertPage(0, "test");
+$book->insertPage(0, "test");
